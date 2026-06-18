@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>123云盘移动转换器</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        /* --- MOS / Untitled UI 基础变量定义 --- */
+        :root {
+            --bg-gradient-start: #f8fafc;
+            --bg-gradient-end: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.6);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --brand-primary: #3b82f6;
+            --brand-primary-hover: #2563eb;
+            --brand-success: #10b981;
+            --brand-error: #ef4444;
+            --border-radius-lg: 16px;
+            --border-radius-md: 10px;
+            --blur-radius: 20px;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- 页面重置与布局 --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            padding: 20px;
+        }
+
+        /* --- 极简 MOS 风格卡片容器 --- */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            backdrop-filter: blur(var(--blur-radius));
+            -webkit-backdrop-filter: blur(var(--blur-radius));
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* --- 头部标题与描述 --- */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* --- 表单交互元素 --- */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px 14px;
+            font-size: 14px;
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+            outline: none;
+            resize: vertical;
+            transition: all 0.2s ease;
+            word-break: break-all;
+        }
+
+        textarea:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+            background: #ffffff;
+        }
+
+        /* --- 按钮组合布局 --- */
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            background: var(--brand-primary);
+            border: none;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: var(--brand-primary-hover);
+        }
+
+        .btn-secondary {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            color: var(--text-main);
+        }
+
+        .btn-submit:active, .btn-secondary:active {
+            transform: scale(0.99);
+        }
+
+        /* --- 批量结果展示区域 --- */
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .result-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius-md);
+            padding: 8px;
+            background: rgba(248, 250, 252, 0.6);
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            gap: 12px;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-url-text {
+            font-size: 13px;
+            color: var(--brand-primary);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            user-select: all;
+            flex: 1;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--brand-primary);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-action:hover {
+            background: #f8fafc;
+            border-color: var(--brand-primary);
+        }
+
+        .btn-open {
+            color: var(--text-muted);
+        }
+        .btn-open:hover {
+            color: var(--text-main);
+            border-color: #cbd5e1;
+        }
+
+        .btn-batch-copy {
+            color: var(--brand-success);
+        }
+        .btn-batch-copy:hover {
+            background: #f0fdf4;
+            border-color: var(--brand-success);
+        }
+
+        /* --- 状态反馈提示 --- */
+        .toast {
+            display: none;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: var(--border-radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .toast.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--brand-success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .toast.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--brand-error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>123云盘链接批量转换</h1>
+            <p>混合文本智能拆分与提取</p>
+        </div>
+
+        <div class="form-group">
+            <label for="bulkUrls">输入原始链接</label>
+            <textarea id="bulkUrls" placeholder="可以将多行、单行或者一整串粘连在一起的 123 云盘链接复制到这里..." autocomplete="off"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-submit" onclick="convertUrls()">立即转换</button>
+            <button class="btn-secondary" onclick="clearAll()">清空</button>
+        </div>
+
+        <div class="form-group" id="resultGroup" style="margin-top: 24px; display: none;">
+            <div class="result-header">
+                <label>转换结果</label>
+                <button class="btn-action btn-batch-copy" onclick="copyAllToClipboard()">复制全部</button>
+            </div>
+            <div class="result-list" id="resultListContainer">
+                </div>
+        </div>
+
+        <div id="toastNotification" class="toast"></div>
+    </div>
+
+    <script>
+        let processedUrls = [];
+
+        function convertUrls() {
+            const inputText = document.getElementById('bulkUrls').value.trim();
+            const resultGroup = document.getElementById('resultGroup');
+            const resultListContainer = document.getElementById('resultListContainer');
+            
+            if (!inputText) {
+                showToast("请输入需要转换的123云盘文本内容", "error");
+                resultGroup.style.display = 'none';
+                return;
+            }
+
+            const segmentRegex = /(?:https?:\/\/[^\s]*?(?:\/s\/|\/123pan\/)[a-zA-Z0-9-]+(?:\?pwd=[a-zA-Z0-9]+)?)/g;
+            let rawMatches = inputText.match(segmentRegex);
+
+            if (!rawMatches) {
+                const fallbackRegex = /(?:\/s\/|\/123pan\/)([a-zA-Z0-9-]+)/g;
+                const simpleMatches = inputText.match(fallbackRegex);
+                if (simpleMatches) {
+                    rawMatches = simpleMatches.map(m => inputText.substring(inputText.indexOf(m)));
+                }
+            }
+
+            if (!rawMatches || rawMatches.length === 0) {
+                resultGroup.style.display = 'none';
+                showToast("未识别到有效的 123 云盘链接", "error");
+                return;
+            }
+
+            processedUrls = [];
+            resultListContainer.innerHTML = '';
+
+            const universalRegex = /(?:\/s\/|\/123pan\/)([a-zA-Z0-9-]+)/;
+            const pwdRegex = /[?&]pwd=([a-zA-Z0-9]+)/;
+            let hasPwdCount = 0;
+
+            rawMatches.forEach((item) => {
+                const match = item.match(universalRegex);
+                if (match) {
+                    const shareId = match[1];
+                    let resultUrl = `https://www.123pan.cn/s/${shareId}`;
+
+                    const pwdMatch = item.match(pwdRegex);
+                    if (pwdMatch) {
+                        resultUrl += `?pwd=${pwdMatch[1]}`;
+                        hasPwdCount++;
+                    }
+
+                    if (!processedUrls.includes(resultUrl)) {
+                        processedUrls.push(resultUrl);
+                    }
+                }
+            });
+
+            if (processedUrls.length === 0) {
+                resultGroup.style.display = 'none';
+                showToast("无法提取出有效的分享 ID", "error");
+                return;
+            }
+
+            processedUrls.forEach((url) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'result-item';
+                
+                itemDiv.innerHTML = `
+                    <div class="result-url-text" title="${url}">${url}</div>
+                    <div class="item-actions">
+                        <a href="${url}" target="_blank" class="btn-action btn-open">打开</a>
+                        <button class="btn-action" onclick="copySingleToClipboard('${url}')">复制</button>
+                    </div>
+                `;
+                resultListContainer.appendChild(itemDiv);
+            });
+
+            resultGroup.style.display = 'block';
+            showToast(`成功处理 ${processedUrls.length} 条链接！`, "success");
+        }
+
+        function clearAll() {
+            document.getElementById('bulkUrls').value = '';
+            document.getElementById('resultGroup').style.display = 'none';
+            processedUrls = [];
+            showToast("已清空", "success");
+        }
+
+        function copySingleToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => showToast("已复制单个链接", "success"))
+                .catch(() => fallbackCopy(text));
+        }
+
+        function copyAllToClipboard() {
+            if (processedUrls.length === 0) return;
+            const textToCopy = processedUrls.join('\n');
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => showToast("已复制全部链接", "success"))
+                .catch(() => fallbackCopy(textToCopy));
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; 
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("已复制到剪贴板", "success");
+            } catch (err) {
+                showToast("复制失败", "error");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast(message, type) {
+            const toast = document.getElementById('toastNotification');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+        }
+    </script>
+</body>
+</html>
